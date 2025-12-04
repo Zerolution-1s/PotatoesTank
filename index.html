@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RETRO TANK CUPHEAD-STYLE - 90s EDITION</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #1a1a2e;
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+        }
+
+        /* CRT TV Effect */
+        #crt-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+                linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 4px, 6px 100%;
+            z-index: 9999;
+            pointer-events: none;
+            opacity: 0.6;
+            mix-blend-mode: overlay;
+        }
+
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                to bottom,
+                transparent 50%,
+                rgba(0, 0, 0, 0.5) 50%
+            );
+            background-size: 100% 4px;
+            z-index: 9998;
+            pointer-events: none;
+            opacity: 0.3;
+        }
+
+        /* Game Container */
+        .game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            border: 8px solid #333;
+            border-image: repeating-linear-gradient(
+                45deg,
+                #666,
+                #666 10px,
+                #444 10px,
+                #444 20px
+            ) 8;
+        }
+
+        canvas {
+            display: block;
+            filter: 
+                contrast(1.2) 
+                brightness(0.9)
+                sepia(0.1)
+                hue-rotate(-5deg);
+            image-rendering: pixelated;
+        }
+
+        /* HUD Retro Style */
+        .hud {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            color: #ffcc00;
+            text-shadow: 3px 3px 0 #000, -1px -1px 0 #000;
+            font-size: 18px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .health-bar {
+            background: #333;
+            border: 3px solid #ffcc00;
+            padding: 3px;
+            margin-bottom: 10px;
+            width: 200px;
+        }
+
+        .health-fill {
+            height: 20px;
+            background: linear-gradient(90deg, #ff3333, #ff9900);
+            width: 100%;
+            transition: width 0.3s;
+        }
+
+        .score {
+            margin-top: 10px;
+            color: #00ff00;
+            font-size: 22px;
+        }
+
+        .ammo {
+            color: #00ccff;
+            margin-top: 5px;
+        }
+
+        /* Retro Button */
+        .controls {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            z-index: 100;
+        }
+
+        .retro-btn {
+            background: linear-gradient(145deg, #666, #333);
+            border: 3px solid #ffcc00;
+            color: #ffcc00;
+            padding: 10px 20px;
+            margin: 5px;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 4px 4px 0 #000;
+            transition: all 0.1s;
+            image-rendering: pixelated;
+        }
+
+        .retro-btn:active {
+            transform: translate(4px, 4px);
+            box-shadow: none;
+        }
+
+        /* Title Screen */
+        .title-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, #1a1a2e, #16213e);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            border: 12px solid #333;
+            border-image: repeating-linear-gradient(
+                45deg,
+                #ffcc00,
+                #ff9900 10px,
+                #ff6600 10px,
+                #ff3300 20px
+            ) 12;
+        }
+
+        .title {
+            font-size: 48px;
+            color: #ffcc00;
+            text-shadow: 
+                4px 4px 0 #ff3300,
+                8px 8px 0 #000;
+            margin-bottom: 30px;
+            font-weight: bold;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            animation: glitch 3s infinite;
+        }
+
+        @keyframes glitch {
+            0%, 100% { transform: translate(0); }
+            92% { transform: translate(-2px, 1px); }
+            94% { transform: translate(1px, -2px); }
+            96% { transform: translate(-1px, 2px); }
+            98% { transform: translate(2px, -1px); }
+        }
+
+        .subtitle {
+            color: #00ff00;
+            font-size: 20px;
+            margin-bottom: 50px;
+            text-shadow: 2px 2px 0 #000;
+        }
+
+        .start-btn {
+            background: linear-gradient(145deg, #ff3300, #ff9900);
+            border: 5px solid #ffcc00;
+            color: #fff;
+            padding: 15px 40px;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 6px 6px 0 #000;
+            transition: all 0.2s;
+            margin-top: 20px;
+        }
+
+        .start-btn:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 8px 8px 0 #000;
+            background: linear-gradient(145deg, #ff9900, #ffcc00);
+        }
+
+        .title-screen.hidden {
+            display: none;
+        }
+
+        /* Game Over Screen */
+        .game-over {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 2001;
+            color: #ff3333;
+            font-size: 36px;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        .game-over.show {
+            display: flex;
+            animation: shake 0.5s infinite;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translate(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translate(-2px, 0); }
+            20%, 40%, 60%, 80% { transform: translate(2px, 0); }
+        }
+
+        /* Vignette Effect */
+        .vignette {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(
+                ellipse at center,
+                rgba(0,0,0,0) 0%,
+                rgba(0,0,0,0.6) 70%,
+                rgba(0,0,0,0.9) 100%
+            );
+            z-index: 9997;
+            pointer-events: none;
+        }
+
+        /* Static Noise */
+        .noise {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                repeating-linear-gradient(
+                    0deg,
+                    rgba(255,255,255,0.03) 0px,
+                    rgba(255,255,255,0.03) 1px,
+                    transparent 1px,
+                    transparent 2px
+                ),
+                repeating-linear-gradient(
+                    90deg,
+                    rgba(255,255,255,0.03) 0px,
+                    rgba(255,255,255,0.03) 1px,
+                    transparent 1px,
+                    transparent 2px
+                );
+            z-index: 9996;
+            pointer-events: none;
+            opacity: 0.15;
+            mix-blend-mode: overlay;
+            animation: static 0.1s infinite;
+        }
+
+        @keyframes static {
+            0% { background-position: 0 0; }
+            100% { background-position: 100px 100px; }
+        }
+
+        /* Instruction */
+        .instruction {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            color: #ffcc00;
+            font-size: 14px;
+            text-shadow: 2px 2px 0 #000;
+            z-index: 100;
+        }
+
+        /* Audio Controls */
+        .audio-controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body>
+    <!-- CRT TV Effects -->
+    <div id="crt-overlay"></div>
+    <div class="scanlines"></div>
+    <div class="vignette"></div>
+    <div class="noise"></div>
+
+    <!-- Title Screen -->
+    <div class="title-screen" id="titleScreen">
+        <div class="title">RETRO TANK WARS</div>
+        <div class="subtitle">CUPHEAD-STYLE 90s EDITION</div>
+        <div style="color: #00ccff; margin-bottom: 30px; font-size: 18px;">
+            ⬆⬇⬅➡ Move | SPACE Shoot | R Reload
+        </div>
+        <button class="start-btn" id="startBtn">START GAME</button>
+        <div style="color: #ff9900; margin-top: 30px; font-size: 14px;">
+            Warning: Contains 90s-era graphics and sounds
+        </div>
+    </div>
+
+    <!-- Game Container -->
+    <div class="game-container">
+        <canvas id="gameCanvas"></canvas>
+        
+        <!-- HUD -->
+        <div class="hud">
+            <div class="health-bar">
+                <div class="health-fill" id="healthFill"></div>
+            </div>
+            <div class="score">SCORE: <span id="score">00000</span></div>
+            <div class="ammo">AMMO: <span id="ammo">30</span>/30</div>
+            <div style="color: #ff9900; margin-top: 10px;">ENEMIES: <span id="enemies">5</span></div>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <button class="retro-btn" id="pauseBtn">PAUSE</button>
+            <button class="retro-btn" id="soundBtn">SOUND ON</button>
+            <button class="retro-btn" id="restartBtn">RESTART</button>
+        </div>
+
+        <!-- Instruction -->
+        <div class="instruction">
+            Destroy all enemy tanks!<br>
+            Avoid obstacles!<br>
+            90s MODE: ACTIVE
+        </div>
+
+        <!-- Game Over -->
+        <div class="game-over" id="gameOver">
+            <div style="font-size: 48px; margin-bottom: 20px;">GAME OVER</div>
+            <div style="color: #ffcc00; font-size: 24px;">SCORE: <span id="finalScore">00000</span></div>
+            <div style="color: #00ff00; margin-top: 30px; font-size: 18px;">PRESS R TO RESTART</div>
+        </div>
+    </div>
+
+    <!-- Audio -->
+    <audio id="bgMusic" loop>
+        <source src="data:audio/mpeg;base64,//vQxAAAA..." type="audio/mpeg">
+    </audio>
+    <audio id="shootSound"></audio>
+    <audio id="explosionSound"></audio>
+    <audio id="hitSound"></audio>
+    <audio id="reloadSound"></audio>
+    <audio id="moveSound"></audio>
+
+    <script>
+        // =========== GAME SETUP ===========
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        // Game state
+        let gameRunning = false;
+        let score = 0;
+        let playerHealth = 100;
+        let ammo = 30;
+        let enemies = [];
+        let bullets = [];
+        let enemyBullets = [];
+        let explosions = [];
+        let particles = [];
+        let obstacles = [];
+        let keys = {};
+        let gameTime = 0;
+
+        // Sound state
+        let soundEnabled = true;
+
+        // =========== RETRO 90s STYLE ===========
+        // Reduced color palette for 90s feel
+        const COLORS = {
+            player: '#FF9900',
+            enemy: '#FF3333',
+            bullet: '#00FF00',
+            enemyBullet: '#FF00FF',
+            obstacle: '#666666',
+            background: '#1a1a2e',
+            ground: '#2a2a3e',
+            ui: '#FFCC00',
+            explosion: '#FF6600'
+        };
+
+        // =========== PLAYER TANK ===========
+        class PlayerTank {
+            constructor() {
+                this.x = canvas.width / 2;
+                this.y = canvas.height / 2;
+                this.width = 50;
+                this.height = 40;
+                this.speed = 5;
+                this.angle = 0;
+                this.turretAngle = 0;
+                this.reloading = false;
+                this.reloadTime = 0;
+                this.invincible = 0;
+            }
+
+            update() {
+                // Movement with 90s style "grid" movement
+                let moveX = 0;
+                let moveY = 0;
+                
+                if (keys['ArrowUp'] || keys['w']) {
+                    moveY = -1;
+                    this.angle = 0;
+                }
+                if (keys['ArrowDown'] || keys['s']) {
+                    moveY = 1;
+                    this.angle = Math.PI;
+                }
+                if (keys['ArrowLeft'] || keys['a']) {
+                    moveX = -1;
+                    this.angle = -Math.PI / 2;
+                }
+                if (keys['ArrowRight'] || keys['d']) {
+                    moveX = 1;
+                    this.angle = Math.PI / 2;
+                }
+
+                // Diagonal movement
+                if (moveX !== 0 && moveY !== 0) {
+                    moveX *= 0.707;
+                    moveY *= 0.707;
+                }
+
+                // Update position with bounds checking
+                this.x += moveX * this.speed;
+                this.y += moveY * this.speed;
+
+                // Keep player in bounds
+                this.x = Math.max(this.width/2, Math.min(canvas.width - this.width/2, this.x));
+                this.y = Math.max(this.height/2, Math.min(canvas.height - this.height/2, this.y));
+
+                // Turret follows mouse
+                const rect = canvas.getBoundingClientRect();
+                const mouseX = (window.event?.clientX || canvas.width/2) - rect.left;
+                const mouseY = (window.event?.clientY || canvas.height/2) - rect.top;
+                this.turretAngle = Math.atan2(mouseY - this.y, mouseX - this.x);
+
+                // Update reload
+                if (this.reloading) {
+                    this.reloadTime++;
+                    if (this.reloadTime >= 60) { // 1 second reload
+                        this.reloading = false;
+                        this.reloadTime = 0;
+                        ammo = 30;
+                        updateUI();
+                        playSound('reload');
+                    }
+                }
+
+                // Update invincibility
+                if (this.invincible > 0) {
+                    this.invincible--;
+                }
+
+                // Play move sound
+                if ((moveX !== 0 || moveY !== 0) && gameTime % 10 === 0) {
+                    playSound('move');
+                }
+            }
+
+            draw() {
+                // Save context for rotation
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                
+                // Draw tank body (Cuphead-style cartoonish)
+                ctx.fillStyle = COLORS.player;
+                
+                // Body with rounded edges
+                ctx.beginPath();
+                ctx.roundRect(-this.width/2, -this.height/2, this.width, this.height, 10);
+                ctx.fill();
+                
+                // Track marks
+                ctx.fillStyle = '#333';
+                ctx.fillRect(-this.width/2 + 5, -this.height/2 - 5, this.width - 10, 5);
+                ctx.fillRect(-this.width/2 + 5, this.height/2, this.width - 10, 5);
+                
+                // Draw turret
+                ctx.save();
+                ctx.rotate(this.turretAngle);
+                
+                // Turret base
+                ctx.fillStyle = '#FF6600';
+                ctx.fillRect(-10, -8, 30, 16);
+                
+                // Gun barrel
+                ctx.fillStyle = '#666';
+                ctx.fillRect(20, -4, 25, 8);
+                
+                // Gun tip
+                ctx.fillStyle = '#333';
+                ctx.fillRect(45, -3, 5, 6);
+                
+                ctx.restore();
+
+                // Cuphead-style face on tank
+                ctx.fillStyle = '#000';
+                // Eyes
+                ctx.beginPath();
+                ctx.arc(-10, -5, 4, 0, Math.PI * 2);
+                ctx.arc(10, -5, 4, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Mouth (smile)
+                ctx.beginPath();
+                ctx.arc(0, 8, 6, 0, Math.PI);
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // Invincibility blink effect
+                if (this.invincible > 0 && Math.floor(this.invincible / 5) % 2 === 0) {
+                    ctx.globalAlpha = 0.5;
+                }
+
+                ctx.restore();
+            }
+
+            shoot() {
+                if (ammo > 0 && !this.reloading) {
+                    const bullet = {
+                        x: this.x + Math.cos(this.turretAngle) * 45,
+                        y: this.y + Math.sin(this.turretAngle) * 45,
+                        angle: this.turretAngle,
+                        speed: 12,
+                        damage: 25,
+                        isPlayer: true
+                    };
+                    bullets.push(bullet);
+                    ammo--;
+                    updateUI();
+                    playSound('shoot');
+                    
+                    // Create muzzle flash
+                    for (let i = 0; i < 5; i++) {
+                        particles.push({
+                            x: bullet.x,
+                            y: bullet.y,
+                            vx: Math.cos(bullet.angle) * 5 + (Math.random() - 0.5) * 3,
+                            vy: Math.sin(bullet.angle) * 5 + (Math.random() - 0.5) * 3,
+                            life: 20,
+                            color: '#FFFF00'
+                        });
+                    }
+
+                    if (ammo === 0) {
+                        this.reloading = true;
+                        playSound('reload');
+                    }
+                }
+            }
+        }
+
+        // =========== ENEMY TANK ===========
+        class EnemyTank {
+            constructor(x, y, type = 'basic') {
+                this.x = x;
+                this.y = y;
+                this.width = 45;
+                this.height = 35;
+                this.speed = 2 + Math.random();
+                this.angle = Math.random() * Math.PI * 2;
+                this.health = type === 'basic' ? 50 : 100;
+                this.type = type;
+                this.shootTimer = 0;
+                this.shootDelay = type === 'basic' ? 90 : 150;
+                this.color = type === 'basic' ? COLORS.enemy : '#FF00FF';
+                this.patternTimer = 0;
+                this.pattern = Math.floor(Math.random() * 3);
+            }
+
+            update() {
+                // Different movement patterns
+                this.patternTimer++;
+                
+                switch(this.pattern) {
+                    case 0: // Circle pattern
+                        this.angle += 0.02;
+                        this.x += Math.cos(this.angle) * this.speed;
+                        this.y += Math.sin(this.angle) * this.speed;
+                        break;
+                    case 1: // Chase player
+                        const dx = player.x - this.x;
+                        const dy = player.y - this.y;
+                        this.angle = Math.atan2(dy, dx);
+this.x += Math.cos(this.angle) * this.speed * 0.7;
+                        this.y += Math.sin(this.angle) * this.speed * 0.7;
+                        break;
+                    case 2: // Random zigzag
+                        if (this.patternTimer % 60 === 0) {
+                            this.angle = Math.random() * Math.PI * 2;
+                        }
+                        this.x += Math.cos(this.angle) * this.speed;
+                        this.y += Math.sin(this.angle) * this.speed;
+                        break;
+                }
+
+                // Keep in bounds with bounce
+                if (this.x < this.width/2 || this.x > canvas.width - this.width/2) {
+                    this.angle = Math.PI - this.angle;
+                }
+                if (this.y < this.height/2 || this.y > canvas.height - this.height/2) {
+                    this.angle = -this.angle;
+                }
+
+                // Shooting logic
+                this.shootTimer++;
+                if (this.shootTimer >= this.shootDelay) {
+                    this.shoot();
+                    this.shootTimer = 0;
+                }
+            }
+
+            shoot() {
+                const dx = player.x - this.x;
+                const dy = player.y - this.y;
+                const angle = Math.atan2(dy, dx);
+                
+                const bullet = {
+                    x: this.x + Math.cos(angle) * 35,
+                    y: this.y + Math.sin(angle) * 35,
+                    angle: angle,
+                    speed: 6,
+                    damage: 10,
+                    isPlayer: false
+                };
+                enemyBullets.push(bullet);
+                
+                playSound('shoot', 0.5, 0.8 + Math.random() * 0.4);
+            }
+
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.angle);
+                
+                // Enemy tank body
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.roundRect(-this.width/2, -this.height/2, this.width, this.height, 8);
+                ctx.fill();
+                
+                // Angry face
+                ctx.fillStyle = '#000';
+                // Angry eyebrows
+                ctx.fillRect(-15, -8, 10, 3);
+                ctx.fillRect(5, -8, 10, 3);
+                // Angry eyes
+                ctx.beginPath();
+                ctx.arc(-10, -2, 3, 0, Math.PI);
+                ctx.arc(10, -2, 3, 0, Math.PI);
+                ctx.fill();
+                // Angry mouth
+                ctx.beginPath();
+                ctx.moveTo(-8, 10);
+                ctx.lineTo(8, 10);
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                // Turret
+                ctx.fillStyle = '#990000';
+                ctx.fillRect(15, -6, 20, 12);
+                
+                // Health bar
+                const healthPercent = this.health / (this.type === 'basic' ? 50 : 100);
+                ctx.fillStyle = '#00FF00';
+                ctx.fillRect(-this.width/2, -this.height/2 - 10, this.width * healthPercent, 3);
+                
+                ctx.restore();
+            }
+        }
+
+        // =========== GAME OBJECTS ===========
+        const player = new PlayerTank();
+
+        // =========== RETRO EFFECTS ===========
+        function createExplosion(x, y, size) {
+            playSound('explosion', 0.7, 0.9 + Math.random() * 0.2);
+            
+            explosions.push({
+                x, y,
+                size: size,
+                life: 30,
+                maxLife: 30
+            });
+            
+            // Create particles
+            for (let i = 0; i < 15; i++) {
+                particles.push({
+                    x: x,
+                    y: y,
+                    vx: (Math.random() - 0.5) * 10,
+                    vy: (Math.random() - 0.5) * 10,
+                    life: 30 + Math.random() * 30,
+                    color: ['#FF3300', '#FF9900', '#FFFF00'][Math.floor(Math.random() * 3)]
+                });
+            }
+        }
+
+        // =========== SOUND SYSTEM ===========
+        function playSound(type, volume = 1, rate = 1) {
+            if (!soundEnabled) return;
+            
+            const audio = document.getElementById(type + 'Sound');
+            if (!audio) return;
+            
+            // Generate retro-style sound effects on the fly
+            if (type === 'shoot') {
+                playRetroShootSound(volume, rate);
+            } else if (type === 'explosion') {
+                playRetroExplosionSound(volume, rate);
+            } else if (type === 'hit') {
+                playRetroHitSound(volume, rate);
+            } else if (type === 'move') {
+                playRetroMoveSound(volume, rate);
+            } else if (type === 'reload') {
+                playRetroReloadSound(volume, rate);
+            }
+        }
+
+        function playRetroShootSound(volume, rate) {
+            // Create 8-bit style shoot sound
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(200, audioContext.currentTime + 0.1);
+            oscillator.type = 'square';
+            
+            gainNode.gain.setValueAtTime(volume * 0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.1);
+            
+            oscillator.start();
+            oscillator.stop(audioContext.currentTime + 0.1);
+        }
+
+        function playRetroExplosionSound(volume, rate) {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.setValueAtTime(150, audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(50, audioContext.currentTime + 0.5);
+            oscillator.type = 'sawtooth';
+            
+            gainNode.gain.setValueAtTime(volume * 0.5, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.5);
+            
+            oscillator.start();
+            oscillator.stop(audioContext.currentTime + 0.5);
+        }
+
+        // =========== GAME LOGIC ===========
+        function spawnEnemies() {
+            if (enemies.length < 5 && Math.random() < 0.02) {
+                const side = Math.floor(Math.random() * 4);
+                let x, y;
+                
+                switch(side) {
+                    case 0: x = 50; y = Math.random() * canvas.height; break;
+                    case 1: x = canvas.width - 50; y = Math.random() * canvas.height; break;
+                    case 2: x = Math.random() * canvas.width; y = 50; break;
+                    case 3: x = Math.random() * canvas.width; y = canvas.height - 50; break;
+                }
+                
+                const type = Math.random() < 0.3 ? 'heavy' : 'basic';
+                enemies.push(new EnemyTank(x, y, type));
+                updateUI();
+            }
+        }
+
+        function updateGame() {
+            if (!gameRunning) return;
+            
+            gameTime++;
+            
+            // Update player
+            player.update();
+            
+            // Update enemies
+            enemies.forEach((enemy, index) => {
+                enemy.update();
+                
+                // Check collision with player
+                if (player.invincible === 0) {
+                    const dx = enemy.x - player.x;
+                    const dy = enemy.y - player.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < (enemy.width/2 + player.width/2)) {
+                        playerHealth -= 10;
+                        player.invincible = 30;
+                        updateUI();
+                        playSound('hit');
+                        
+                        if (playerHealth <= 0) {
+                            gameOver();
+                        }
+                    }
+                }
+            });
+            
+            // Update bullets
+            bullets.forEach((bullet, bIndex) => {
+                bullet.x += Math.cos(bullet.angle) * bullet.speed;
+                bullet.y += Math.sin(bullet.angle) * bullet.speed;
+                
+                // Check bullet bounds
+                if (bullet.x < 0 || bullet.x > canvas.width || 
+                    bullet.y < 0 || bullet.y > canvas.height) {
+                    bullets.splice(bIndex, 1);
+                    return;
+                }
+                
+                // Check bullet collision with enemies
+                enemies.forEach((enemy, eIndex) => {
+                    const dx = bullet.x - enemy.x;
+                    const dy = bullet.y - enemy.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < enemy.width/2) {
+                        enemy.health -= bullet.damage;
+                        bullets.splice(bIndex, 1);
+                        playSound('hit');
+                        
+                        if (enemy.health <= 0) {
+                            createExplosion(enemy.x, enemy.y, enemy.type === 'heavy' ? 40 : 30);
+                            enemies.splice(eIndex, 1);
+                            score += enemy.type === 'heavy' ? 500 : 200;
+                            updateUI();
+                            
+                            // Spawn power-up chance
+                            if (Math.random() < 0.3) {
+                                spawnPowerUp(enemy.x, enemy.y);
+                            }
+                        }
+                        return;
+                    }
+                });
+            });
+            
+            // Update enemy bullets
+            enemyBullets.forEach((bullet, bIndex) => {
+                bullet.x += Math.cos(bullet.angle) * bullet.speed;
+                bullet.y += Math.sin(bullet.angle) * bullet.speed;
+                
+                // Check bounds
+                if (bullet.x < 0 || bullet.x > canvas.width || 
+                    bullet.y < 0 || bullet.y > canvas.height) {
+                    enemyBullets.splice(bIndex, 1);
+                    return;
+                }
+                
+                // Check collision with player
+                if (player.invincible === 0) {
+                    const dx = bullet.x - player.x;
+                    const dy = bullet.y - player.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < player.width/2) {
+                        playerHealth -= bullet.damage;
+                        enemyBullets.splice(bIndex, 1);
+                        player.invincible = 30;
+                        playSound('hit');
+                        updateUI();
+                        
+                        if (playerHealth <= 0) {
+                            gameOver();
+                        }
+                    }
+                }
+            });
+            
+            // Update explosions
+            explosions.forEach((exp, index) => {
+                exp.life--;
+                if (exp.life <= 0) {
+                    explosions.splice(index, 1);
+                }
+            });
+            
+            // Update particles
+            particles.forEach((particle, index) => {
+                particle.x += particle.vx;
+                particle.y += particle.vy;
+                particle.vy += 0.2; // Gravity
+                particle.life--;
+                
+                if (particle.life <= 0) {
+                    particles.splice(index, 1);
+                }
+            });
+            
+            // Spawn new enemies
+            spawnEnemies();
+            
+            // Random screen shake (90s TV glitch effect)
+            if (Math.random() < 0.01) {
+                applyScreenShake();
+            }
+        }
+
+        function applyScreenShake() {
+            canvas.style.transform = `translate(${Math.random() * 4 - 2}px, ${Math.random() * 4 - 2}px)`;
+            setTimeout(() => {
+                canvas.style.transform = 'translate(0, 0)';
+            }, 100);
+        }
+
+        // =========== DRAWING ===========
+        function drawGame() {
+            // Clear with retro fade effect
+            ctx.fillStyle = COLORS.background;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw ground pattern
+            ctx.fillStyle = COLORS.ground;
+            for (let x = 0; x < canvas.width; x += 40) {
+                for (let y = 0; y < canvas.height; y += 40) {
+                    if ((x/40 + y/40) % 2 === 0) {
+                        ctx.fillRect(x, y, 40, 40);
+                    }
+                }
+            }
+            
+            // Draw obstacles
+            ctx.fillStyle = COLORS.obstacle;
+            obstacles.forEach(obs => {
+                ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+                
+                // Draw crack texture
+                ctx.strokeStyle = '#333';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                for (let i = 0; i < 3; i++) {
+                    const startX = obs.x + Math.random() * obs.width;
+                    const startY = obs.y + Math.random() * obs.height;
+                    const endX = startX + (Math.random() - 0.5) * 20;
+                    const endY = startY + (Math.random() - 0.5) * 20;
+                    ctx.moveTo(startX, startY);
+                    ctx.lineTo(endX, endY);
+                }
+                ctx.stroke();
+            });
+            
+            // Draw particles
+            particles.forEach(particle => {
+                ctx.fillStyle = particle.color;
+                ctx.globalAlpha = particle.life / 30;
+                ctx.fillRect(particle.x - 2, particle.y - 2, 4, 4);
+            });
+            ctx.globalAlpha = 1;
+            
+            // Draw explosions
+            explosions.forEach(exp => {
+                const size = exp.size * (exp.life / exp.maxLife);
+                ctx.fillStyle = COLORS.explosion;
+                ctx.globalAlpha = exp.life / exp.maxLife;
+                
+                // Draw multiple circles for explosion effect
+                for (let i = 0; i < 3; i++) {
+                    const radius = size * (0.5 + i * 0.3);
+                    ctx.beginPath();
+                    ctx.arc(exp.x, exp.y, radius, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            });
+            ctx.globalAlpha = 1;
+            
+            // Draw enemy bullets
+            enemyBullets.forEach(bullet => {
+                ctx.fillStyle = COLORS.enemyBullet;
+                ctx.fillRect(bullet.x - 3, bullet.y - 3, 6, 6);
+                
+                // Trail effect
+                ctx.fillStyle = '#FF00FF';
+                ctx.globalAlpha = 0.5;
+                ctx.fillRect(bullet.x - 2 - Math.cos(bullet.angle) * 5, 
+                            bullet.y - 2 - Math.sin(bullet.angle) * 5, 4, 4);
+                ctx.globalAlpha = 1;
+            });
+            
+            // Draw player bullets
+            bullets.forEach(bullet => {
+                ctx.fillStyle = COLORS.bullet;
+                ctx.fillRect(bullet.x - 4, bullet.y - 4, 8, 8);
+                
+                // Green trail
+                ctx.fillStyle = '#00FF00';
+                ctx.globalAlpha = 0.5;
+                ctx.fillRect(bullet.x - 3 - Math.cos(bullet.angle) * 5, 
+                            bullet.y - 3 - Math.sin(bullet.angle) * 5, 6, 6);
+                ctx.globalAlpha = 1;
+            });
+            
+            // Draw enemies
+            enemies.forEach(enemy => enemy.draw());
+            
+            // Draw player
+            player.draw();
+            
+            // Draw 90s-style scanline overlay on canvas
+            ctx.fillStyle = 'rgba(0, 255, 0, 0.03)';
+            for (let y = 0; y < canvas.height; y += 4) {
+                ctx.fillRect(0, y, canvas.width, 1);
+            }
+            
+            // Draw VHS tracking error effect occasionally
+            if (gameTime % 300 < 10) {
+                ctx.fillStyle = 'rgba(255, 0, 255, 0.1)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+        }
+
+        // =========== GAME FLOW ===========
+        function startGame() {
+            gameRunning = true;
+            score = 0;
+            playerHealth = 100;
+            ammo = 30;
+            enemies = [];
+            bullets = [];
+            enemyBullets = [];
+            explosions = [];
+            particles = [];
+            
+            // Create initial enemies
+            for (let i = 0; i < 3; i++) {
+                const x = 100 + Math.random() * (canvas.width - 200);
+                const y = 100 + Math.random() * (canvas.height - 200);
+                enemies.push(new EnemyTank(x, y, 'basic'));
+            }
+            
+            // Create obstacles
+            obstacles = [];
+            for (let i = 0; i < 8; i++) {
+                obstacles.push({
+                    x: 50 + Math.random() * (canvas.width - 100),
+                    y: 50 + Math.random() * (canvas.height - 100),
+                    width: 40 + Math.random() * 60,
+                    height: 40 + Math.random() * 60
+                });
+            }
+            
+            updateUI();
+            document.getElementById('titleScreen').classList.add('hidden');
+            document.getElementById('gameOver').classList.remove('show');
+        }
+
+        function gameOver() {
+            gameRunning = false;
+            document.getElementById('finalScore').textContent = score.toString().padStart(5, '0');
+            document.getElementById('gameOver').classList.add('show');
+        }
+
+        function updateUI() {
+            document.getElementById('score').textContent = score.toString().padStart(5, '0');
+            document.getElementById('healthFill').style.width = `${playerHealth}%`;
+            document.getElementById('ammo').textContent = ammo;
+            document.getElementById('enemies').textContent = enemies.length;
+            
+            // Update health bar color based on health
+            if (playerHealth > 50) {
+                document.getElementById('healthFill').style.background = 'linear-gradient(90deg, #00FF00, #00CC00)';
+            } else if (playerHealth > 25) {
+                document.getElementById('healthFill').style.background = 'linear-gradient(90deg, #FFFF00, #FF9900)';
+            } else {
+                document.getElementById('healthFill').style.background = 'linear-gradient(90deg, #FF0000, #CC0000)';
+            }
+        }
+
+        // =========== EVENT HANDLERS ===========
+        window.addEventListener('keydown', (e) => {
+            keys[e.key] = true;
+            
+            if (e.key === ' ') {
+                player.shoot();
+                e.preventDefault();
+            }
+            
+            if (e.key === 'r' || e.key === 'R') {
+                if (!gameRunning) {
+                    startGame();
+                } else if (ammo === 0) {
+                    player.reloading = true;
+                    playSound('reload');
+                }
+            }
